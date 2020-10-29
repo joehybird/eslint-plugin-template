@@ -2,11 +2,16 @@
   "author": {
     "name": "S Anand <s.anand@gramener.com>"
   },
+  "contributors": [
+    "Joe <ffabre@hybird.org>"
+  ],
   "dependencies": {
     "htmlparser2": "3",
-    "yarn": "^1.22.4"
+    "yarn": "^1.22.4",
+    "colors": "^1.4.0",
+    "getenv": "^1.0.0"
   },
-  "description": "Parses out template declarations found in JS/HTML files",
+  "description": "Parses out django & tornado template declarations found in JS/HTML files",
   "devDependencies": {
     "eslint": "7",
     "chai": "4",
@@ -29,11 +34,11 @@
   "name": "eslint-plugin-template",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gramener/eslint-plugin-template.git"
+    "url": "git+https://github.com/joehybird/eslint-plugin-template.git"
   },
   "scripts": {
     "pretest": "eslint *.js",
     "test": "mocha"
   },
-  "version": "0.4.0"
+  "version": "0.5.0-hybird"
 }

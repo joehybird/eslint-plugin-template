@@ -24,7 +24,7 @@ describe('detemplatize', function() {
     expect(detemplatize('{% test 1 %}')).to.deep.equal('____/* ×× */')
 
     var source = '\n{%12\n34\n%}{%\n12\n345678901%}\n{%xx%}'
-    var target = '\n____/* ×\n\n */____/* \n\n××××××× */\n____'
+    var target = '\n____/* ×\n\n */____/**\n\n××××××× */\n____'
     expect(linecount(source)).to.equal(linecount(target)); // keeps line count
     expect(detemplatize(source)).to.deep.equal(target)
   })
@@ -34,7 +34,7 @@ describe('detemplatize', function() {
     expect(detemplatize('{# a comment #}')).to.deep.equal('/* ××××××××× */');
 
     var source = '\n{#12\n34\n#}{#\n12\n34#}\n{#12#}'
-    var target = '\n/* ×\n××\n *//* \n××\n× */\n/* × */'
+    var target = '\n/* ×\n××\n *//**\n××\n× */\n/* × */'
     expect(linecount(source)).to.equal(linecount(target)); // keeps line count
     expect(detemplatize(source)).to.deep.equal(target)
   })
@@ -73,7 +73,7 @@ describe('detemplatize', function() {
 
   it('replaces {% raw with objects', function() {
     var source = '{%  \nraw \nx \n%};\n{%raw x%};{%rawx%}'
-    var target = '____/* \n××\n××\n */;\n____;____'
+    var target = '____/**\n××\n××\n */;\n____;____'
     expect(detemplatize(source)).to.deep.equal(target)
   })
 })

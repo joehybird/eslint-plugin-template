@@ -1,3 +1,6 @@
+require('colors');
+
+var getenv = require('getenv');
 var detemplatize = require('./detemplatize.js')
 var extract = require('./extract.js')
 
@@ -13,6 +16,22 @@ function dedent(str) {
     size: indent,
     text: indent > 0 ? str.replace(re, '') : str
   }
+}
+
+function fmtLineNumber(value) {
+    return ('    ' + value).slice(-4);
+}
+
+function pprint(text, firstindex) {
+  var output = text.replace(/ /g, '·'.gray)
+    .split('\n').map(function(line, index) {
+      return (
+         fmtLineNumber(firstindex + index) + ' → ' +
+         fmtLineNumber(index + 1) + ': '
+      ).grey + line + '¶'.gray;
+    }).join('\n');
+
+  console.log(output);
 }
 
 module.exports = {
@@ -31,23 +50,34 @@ module.exports = {
    // For HTML and SVG files, first detemplatize, then run through HTML plugin
    detemplatizeHTML: function() {
      var scripts, originalText;
+     var is_debug = getenv.int('ESLINT_DEBUG', 0)
 
      return {
-       preprocess: function (text) {
+       preprocess: function (text, filename) {
          originalText = text
          scripts = extract(text)
 
-         return scripts.map(function (chunk) {
+         var output = scripts.map(function (chunk) {
            var indentation = dedent(chunk.text);
            chunk.indent_size = indentation.size;
-           return detemplatize(indentation.text)
+           return detemplatize(indentation.text);
          });
+
+         if (is_debug) {
+           output.forEach(function(text, index) {
+             console.log(String(filename).underline);
+             pprint(text, scripts[index].start);
+           });
+         }
+
+         return output
        },
        postprocess: function (messages) {
          var result = [];
 
          messages.forEach(function (messageList, index) {
-           var lines = originalText.slice(0, scripts[index].start).split('\n');
+           var text = originalText.slice(0, scripts[index].start);
+           var lines = text.split('\n');
            var lineno = lines.length - 1;
            var colno = scripts[index].indent_size
 

@@ -38,19 +38,20 @@ function replace_with_comments(match, options) {
   var minlength = prefix.length + suffix.length + start;
 
   if (match.length > minlength) {
+      // get the linebreaks from content[:prefix.length]
       var pre_breaks = replace_with_padding(match.slice(0, prefix.length + start), '');
+      // get the linebreaks from content[-suffix.length:]
       var post_breaks = replace_with_padding(match.slice(match.length - suffix.length, match.length), '');
-      var result = [
-          prefix,
-          pre_breaks,
-          replace_with_padding(match.slice(prefix.length + start, match.length - suffix.length), '×'),
-          post_breaks,
-          suffix
-      ].join('');
-      return result;
+      // replace content[prefix.length:-suffix.length] by the padding character
+      var padded_content = replace_with_padding(
+        match.slice(prefix.length + start, match.length - suffix.length), '×'
+      );
+      var result = [prefix, pre_breaks, padded_content, post_breaks, suffix].join('');
+
+      // fix an artefact when the STARTING '/* ' is followed by a linebreak
+      return result.replace(/^\/\*[ ]+\n/, '/**\n');
   } else if (match.length == minlength) {
-      result = prefix + '×' + replace_with_padding(match, '') + suffix;
-      return result;
+      return prefix + '×' + replace_with_padding(match, '') + suffix;
   } else {
       return '';
   }
@@ -167,6 +168,7 @@ function fix_artefacts(text) {
 
 module.exports = function (text) {
     text = empty_js_comments(text)
+
     text = detemplatize_block_comments(text)
     text = detemplatize_inline_comments(text)
 
